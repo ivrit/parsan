@@ -90,16 +90,23 @@ def build_charvocab(chunks):
 
 
 def _encode(text, tok, charvocab):
-    """text -> (input_ids, attn, char2sub, char_ids) for one chunk."""
-    L = len(text)
-    enc = tok(text, return_offsets_mapping=True, add_special_tokens=True,
+    """text -> (input_ids, attn, char2sub, char_ids) for one chunk.
+
+    Each character is its own ``word``; char2sub maps a character to the first
+    sub-word covering it via word_ids(). This is robust across transformers/tokenizers
+    versions (unlike offset_mapping, whose char-offset semantics have shifted), and for
+    this one-token-per-character tokenizer it produces the same alignment the model was
+    trained with."""
+    chars = list(text)
+    L = len(chars)
+    enc = tok(chars, is_split_into_words=True, add_special_tokens=True,
               truncation=True, max_length=MAXCHARS + 8)
     char2sub = [0] * L
-    for si, (a, b) in enumerate(enc["offset_mapping"]):
-        if b > a:
-            for c in range(a, min(b, L)):
-                char2sub[c] = si
-    char_ids = [charvocab.get(c, 1) for c in text]
+    seen = set()
+    for pos, w in enumerate(enc.word_ids()):
+        if w is not None and w not in seen and w < L:
+            char2sub[w] = pos; seen.add(w)
+    char_ids = [charvocab.get(c, 1) for c in chars]
     return enc["input_ids"], enc["attention_mask"], char2sub, char_ids
 
 
