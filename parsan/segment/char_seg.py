@@ -134,7 +134,7 @@ class CharSegmenter:
     @classmethod
     def load(cls, run_dir=None, encoder=None, device=None):
         seg = config.segmenter("char")
-        run_dir = run_dir or seg["run_dir"]
+        run_dir = run_dir or config.ensure_run(seg["run"])
         encoder = encoder or seg["encoder"]
         device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
         charvocab = json.load(open(os.path.join(run_dir, "charvocab.json"), encoding="utf-8"))

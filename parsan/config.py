@@ -31,6 +31,8 @@ LEMMA_BANK = _env("PARSAN_LEMMA_BANK", os.path.join(DATA_DIR, "lemma_bank_amir.j
 # RFTokenizer is a vendored repo (Apache-2.0) that lives outside the package on the HPC.
 RF_DIR = _env("PARSAN_RF", os.path.join(REPO, "RFTokenizer", "rftokenizer"))
 RF_MODEL = _env("PARSAN_RF_MODEL", os.path.join(RF_DIR, "heb.sm3"))
+# trained weights are published on the HF Hub; fetched on first use if not present locally.
+HF_MODEL_REPO = _env("PARSAN_HF_REPO", "noamor/parsan")
 
 # --- model profiles (joint tagger+parser) ---
 PROFILES = {
@@ -48,6 +50,19 @@ SEGMENTERS = {
 def run_path(name):
     """Absolute path to a run directory (holds best.pt / vocabs.json / args.json)."""
     return name if os.path.isabs(name) else os.path.join(RUNS_DIR, name)
+
+
+def ensure_run(name):
+    """Return the local run directory, downloading its weights from the HF Hub
+    (PARSAN_HF_REPO) on first use if they aren't present locally. Set PARSAN_RUNS to
+    control where they land. Pass an absolute path to use your own checkpoint untouched."""
+    d = run_path(name)
+    if os.path.isabs(name) or os.path.exists(os.path.join(d, "best.pt")):
+        return d
+    from huggingface_hub import snapshot_download
+    print(f"[parsan] fetching '{name}' from {HF_MODEL_REPO} (first use)...", flush=True)
+    snapshot_download(HF_MODEL_REPO, allow_patterns=[f"{name}/*"], local_dir=RUNS_DIR)
+    return d
 
 
 def profile(name):

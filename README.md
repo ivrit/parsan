@@ -45,9 +45,20 @@ the `PARSAN_RF` environment variable.
 python scripts/predict.py --text input.txt --sent newline --profile base --out out.conllu
 ```
 
+The trained weights live on the [Hugging Face Hub](https://huggingface.co/noamor/parsan)
+and are **downloaded automatically the first time you run** (into `runs/`; set `PARSAN_RUNS`
+to put them elsewhere, or point a profile at your own checkpoint). From Python:
+
+```python
+from parsan.pipeline import Pipeline
+nlp = Pipeline(profile="base", segmenter="char")
+print(nlp.parse("דין הבקשה להידחות."))   # -> UD CoNLL-U
+```
+
 `--profile` is `base` (DictaBERT, best) or `tiny` (DictaBERT-tiny, about 3x faster).
-`--segmenter` is `char` (default) or `rftok`. Trained checkpoints live under `runs/`; set
-`PARSAN_RUNS` to point somewhere else.
+`--segmenter` is `char` (default, the better one) or `rftok`.
+
+There is also a live demo: <https://huggingface.co/spaces/noamor/parsan-demo>.
 
 ## Layout
 

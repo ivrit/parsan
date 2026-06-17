@@ -27,7 +27,7 @@ class Pipeline:
     def __init__(self, profile="base", segmenter="rftok",
                  lemma_bank=config.LEMMA_BANK, device=None):
         prof = config.profile(profile)
-        self.run_dir = prof["run_dir"]
+        self.run_dir = config.ensure_run(prof["run"])
         self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
         args = json.load(open(os.path.join(self.run_dir, "args.json")))
         self.vocabs = load_vocabs(self.run_dir)
@@ -109,6 +109,18 @@ class Pipeline:
                 m += 1
         out.append("")
         return "\n".join(out) + "\n"
+
+    def parse(self, text, normalize=True):
+        """Parse a string (one sentence per line) and return UD CoNLL-U as a string."""
+        from .text import tokenize_words, normalize_source
+        def src():
+            for i, line in enumerate(text.split("\n"), 1):
+                if not line.strip():
+                    continue
+                toks = tokenize_words(line)
+                yield (f"s{i}", line, [w for w, _ in toks], [ns for _, ns in toks])
+        rows = normalize_source(src()) if normalize else src()
+        return "".join(self.block(sid, t, w, ns) for sid, t, w, ns in rows)
 
 
 def run(out, text="", gold="", profile="base", segmenter="rftok",
