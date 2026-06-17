@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "parsan"
+version = "1.0"
+description = "A single joint model for Hebrew morphosyntax: raw text in, UD CoNLL-U out."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["torch", "transformers", "networkx"]
+
+[tool.setuptools]
+packages = ["parsan", "parsan.segment"]
