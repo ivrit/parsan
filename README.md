@@ -103,3 +103,7 @@ Parsan stands on other people's work: DictaBERT (Dicta), RFTokenizer and the UD 
 treebanks (Amir Zeldes and colleagues), and the Universal Dependencies ecosystem. Thanks to
 Amir Zeldes for the encouragement and inspiration, and to Avner Algom at IAHLT for permission
 to use the out-of-domain evaluation data.
+
+To hand-edit or correct parses, [UD Annotatrix](https://github.com/jonorthwash/ud-annotatrix)
+(Tyers, Washington et al.) is an excellent browser-based Universal Dependencies treebank
+editor — load Parsan's CoNLL-U output straight into it.
