@@ -6,9 +6,6 @@ dist/
 .venv/
 .DS_Store
 
-# data and trained models are not tracked here
+# trained checkpoints are not tracked (too large); eval data under data/ood/ IS tracked
 runs/
-data/
 *.pt
-*.conllu
-*.tab
